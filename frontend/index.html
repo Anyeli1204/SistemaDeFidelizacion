@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Programa de fidelización</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header__inner">
+      <h1>Programa de fidelización</h1>
+      <p class="header__sub" id="headerSub">Registra los consumos de tus clientes</p>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="app-shell">
+      <nav class="view-nav" aria-label="Seleccionar vista">
+        <button type="button" class="view-nav__btn view-nav__btn--active" data-view="restaurante" id="tabRestaurante">
+          Restaurante
+        </button>
+        <button type="button" class="view-nav__btn" data-view="cliente" id="tabCliente">
+          Cliente
+        </button>
+      </nav>
+
+      <section class="view view--active" id="view-restaurante" aria-labelledby="tabRestaurante">
+        <div class="view-card">
+          <div class="view-card__intro view-card__intro--restaurante">
+            <h2>Restaurante</h2>
+            <p>Registra la compra del cliente para sumar puntos a su cuenta.</p>
+            <span class="status-pill" id="statusRestaurante">Comprobando…</span>
+          </div>
+
+          <div class="view-card__content">
+            <form id="formConsumo" class="form">
+              <label>
+                Monto consumido (S/)
+                <input type="number" name="monto" min="0.01" step="0.01" value="120" required>
+              </label>
+              <label>
+                Número de tarjeta del cliente
+                <input type="text" name="tarjeta" value="4111111111111111" required maxlength="19">
+              </label>
+              <label>
+                Código del local
+                <input type="text" name="codigo" value="REST-LIMA-01" required>
+              </label>
+              <label>
+                Correo del cliente (opcional)
+                <input type="email" name="email" placeholder="correo@ejemplo.com">
+              </label>
+              <label>
+                Fecha y hora (opcional)
+                <input type="datetime-local" name="fecha">
+              </label>
+              <button type="submit" class="btn btn--primary">Registrar consumo</button>
+            </form>
+            <div class="result" id="resultConsumo" hidden></div>
+            <p class="view__hint">El cliente podrá ver sus puntos en la pestaña Cliente.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-cliente" aria-labelledby="tabCliente" hidden>
+        <div class="view-card">
+          <div class="view-card__intro view-card__intro--cliente">
+            <h2>Cliente</h2>
+            <p>Revisa cuántos puntos tienes acumulados.</p>
+            <span class="status-pill" id="statusConsulta">Comprobando…</span>
+          </div>
+
+          <div class="view-card__content">
+            <form id="formSaldo" class="form">
+              <label>
+                Número de tarjeta
+                <input type="text" name="tarjeta" value="4111111111111111" required maxlength="19">
+              </label>
+              <button type="submit" class="btn btn--primary btn--cliente">Ver mis puntos</button>
+            </form>
+
+            <div class="saldo-card" id="saldoCard" hidden>
+              <p class="saldo-card__label">Tu saldo</p>
+              <p class="saldo-card__value" id="saldoValor">0</p>
+              <p class="saldo-card__tarjeta" id="saldoTarjeta"></p>
+            </div>
+            <div class="result" id="resultSaldo" hidden></div>
+            <p class="view__hint">Si acabas de consumir en un local, espera un momento y vuelve a consultar.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <input type="hidden" id="urlRestaurante" value="http://localhost:8000">
+  <input type="hidden" id="urlConsulta" value="http://localhost:8001">
+
+  <script src="js/app.js"></script>
+</body>
+</html>

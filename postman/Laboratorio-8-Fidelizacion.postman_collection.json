@@ -1,0 +1,258 @@
+{
+  "info": {
+    "_postman_id": "lab8-fidelizacion-utec",
+    "name": "Laboratorio 8 — Fidelización (CS3081)",
+    "description": "Colección para probar las APIs del programa de recompensas en restaurantes.\n\n**Requisitos:**\n1. `.env` con RabbitMQ del curso\n2. `services.restaurant` → puerto 8000\n3. `services.rewards` → worker consumidor\n4. `services.consulta` → puerto 8001 (opcional)\n5. `services.notification` (opcional)\n\n**Swagger:**\n- Restaurante: http://localhost:8000/docs\n- Consulta: http://localhost:8001/docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrlRestaurante",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "baseUrlConsulta",
+      "value": "http://localhost:8001"
+    },
+    {
+      "key": "numeroTarjeta",
+      "value": "4111111111111111"
+    },
+    {
+      "key": "codigoRestaurante",
+      "value": "REST-LIMA-01"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 — Restaurante (Productor)",
+      "description": "Registra consumos y publica `consumo.registrado` en RabbitMQ.",
+      "item": [
+        {
+          "name": "Health — Restaurante",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrlRestaurante}}/health",
+              "host": ["{{baseUrlRestaurante}}"],
+              "path": ["health"]
+            },
+            "description": "Verifica que la API del restaurante esté activa."
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar consumo (Jesús — S/ 120)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 202 Accepted', function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});",
+                  "pm.test('Incluye transaccion_id', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.transaccion_id).to.be.a('string');",
+                  "    pm.collectionVariables.set('ultimaTransaccionId', json.transaccion_id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto_consumido\": 120,\n  \"numero_tarjeta\": \"{{numeroTarjeta}}\",\n  \"codigo_restaurante\": \"{{codigoRestaurante}}\",\n  \"email_cliente\": \"cliente@ejemplo.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlRestaurante}}/api/consumos",
+              "host": ["{{baseUrlRestaurante}}"],
+              "path": ["api", "consumos"]
+            },
+            "description": "Registra una cena y publica el evento al broker. Requiere RabbitMQ y worker de recompensas en ejecución."
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar consumo (con fecha/hora)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto_consumido\": 85.50,\n  \"numero_tarjeta\": \"{{numeroTarjeta}}\",\n  \"codigo_restaurante\": \"REST-CUSCO-02\",\n  \"fecha_hora\": \"2026-05-27T20:30:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlRestaurante}}/api/consumos",
+              "host": ["{{baseUrlRestaurante}}"],
+              "path": ["api", "consumos"]
+            },
+            "description": "Payload completo con los 4 campos del enunciado (fecha explícita)."
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar consumo — error validación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Debe rechazar monto negativo (422)', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "pm.test('Respuesta incluye detalle de validación', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.detail).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto_consumido\": -10,\n  \"numero_tarjeta\": \"{{numeroTarjeta}}\",\n  \"codigo_restaurante\": \"REST-LIMA-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlRestaurante}}/api/consumos",
+              "host": ["{{baseUrlRestaurante}}"],
+              "path": ["api", "consumos"]
+            },
+            "description": "Caso de prueba NEGATIVO: monto -10. FastAPI rechaza antes de llegar a RabbitMQ. Respuesta esperada: **422 Unprocessable Content** (no 202). Esto es correcto."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 — Consulta de puntos",
+      "description": "Lee el saldo desde SQLite (después de procesar eventos).",
+      "item": [
+        {
+          "name": "Health — Consulta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrlConsulta}}/health",
+              "host": ["{{baseUrlConsulta}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar saldo de puntos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Saldo numérico', function () {",
+                  "    pm.expect(pm.response.json().saldo_puntos).to.be.a('number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrlConsulta}}/api/cuentas/{{numeroTarjeta}}/saldo",
+              "host": ["{{baseUrlConsulta}}"],
+              "path": ["api", "cuentas", "{{numeroTarjeta}}", "saldo"]
+            },
+            "description": "Consulta puntos acumulados. Ejecutar después de registrar al menos un consumo."
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar saldo — cuenta inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrlConsulta}}/api/cuentas/9999999999999999/saldo",
+              "host": ["{{baseUrlConsulta}}"],
+              "path": ["api", "cuentas", "9999999999999999", "saldo"]
+            },
+            "description": "Debe responder 404 Cuenta no encontrada."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 — Flujo completo (orden sugerido)",
+      "description": "Ejecutar en orden con Folder Runner de Postman.",
+      "item": [
+        {
+          "name": "1. Health Restaurante",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrlRestaurante}}/health"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Registrar consumo",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto_consumido\": 120,\n  \"numero_tarjeta\": \"{{numeroTarjeta}}\",\n  \"codigo_restaurante\": \"{{codigoRestaurante}}\",\n  \"email_cliente\": \"cliente@ejemplo.com\"\n}"
+            },
+            "url": "{{baseUrlRestaurante}}/api/consumos"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Health Consulta",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrlConsulta}}/health"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Consultar saldo",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrlConsulta}}/api/cuentas/{{numeroTarjeta}}/saldo"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

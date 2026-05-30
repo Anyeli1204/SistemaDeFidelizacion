@@ -1,0 +1,341 @@
+:root {
+  --bg: #e8eef4;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-soft: #eff6ff;
+  --cliente: #059669;
+  --cliente-dark: #047857;
+  --cliente-soft: #ecfdf5;
+  --error: #dc2626;
+  --border: #e2e8f0;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 10px 40px rgba(15, 23, 42, 0.1);
+  --gap-tabs-content: 1.25rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.header {
+  background: linear-gradient(145deg, #1e3a5f 0%, #2563eb 55%, #3b82f6 100%);
+  color: #fff;
+  padding: 2rem 1.5rem 2.25rem;
+}
+
+body[data-view="cliente"] .header {
+  background: linear-gradient(145deg, #064e3b 0%, #059669 55%, #10b981 100%);
+}
+
+.header__inner {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.header__sub {
+  margin: 0.5rem 0 0;
+  opacity: 0.92;
+  font-size: 0.95rem;
+}
+
+.main {
+  max-width: 520px;
+  width: 100%;
+  margin: -1.25rem auto 2rem;
+  padding: 0 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-tabs-content);
+}
+
+.view-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.view-nav__btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.view-nav__btn:hover:not(.view-nav__btn--active) {
+  color: var(--text);
+  background: #f8fafc;
+}
+
+.view-nav__btn--active {
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+body[data-view="cliente"] .view-nav__btn--active {
+  background: var(--cliente);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+}
+
+.view-nav__btn--active:hover {
+  color: #fff;
+}
+
+.view {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.view--active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.view-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.view-card__intro {
+  padding: 1.5rem 1.5rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.view-card__intro--restaurante {
+  background: linear-gradient(180deg, var(--primary-soft) 0%, var(--surface) 100%);
+}
+
+.view-card__intro--cliente {
+  background: linear-gradient(180deg, var(--cliente-soft) 0%, var(--surface) 100%);
+}
+
+.view-card__intro h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.view-card__intro p {
+  margin: 0.4rem 0 1rem;
+  font-size: 0.92rem;
+  color: var(--muted);
+  max-width: 32ch;
+}
+
+.view-card__content {
+  padding: 1.5rem;
+}
+
+.status-pill {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: var(--muted);
+}
+
+.status-pill--ok {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.status-pill--fail {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.view__hint {
+  margin: 1.25rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.form input {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  background: #fafbfc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background: #fff;
+}
+
+body[data-view="cliente"] .form input:focus {
+  border-color: var(--cliente);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}
+
+.btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: transform 0.15s, background 0.2s;
+}
+
+.btn--primary:active {
+  transform: scale(0.98);
+}
+
+.btn--primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background: var(--primary-dark);
+}
+
+.btn--cliente {
+  background: var(--cliente);
+}
+
+.btn--cliente:hover {
+  background: var(--cliente-dark);
+}
+
+.result {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.result--ok {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.result--error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.saldo-card {
+  margin-top: 1.25rem;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background: linear-gradient(135deg, var(--primary-soft) 0%, var(--cliente-soft) 100%);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.saldo-card__label {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.saldo-card__value {
+  margin: 0.5rem 0 0;
+  font-size: 3.25rem;
+  font-weight: 800;
+  color: var(--cliente);
+  line-height: 1;
+}
+
+.saldo-card__tarjeta {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+@media (min-width: 480px) {
+  .header {
+    padding: 2.5rem 2rem 2.75rem;
+  }
+
+  .main {
+    padding: 0 1.5rem;
+  }
+
+  .view-card__intro,
+  .view-card__content {
+    padding: 1.75rem;
+  }
+}
